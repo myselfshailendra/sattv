@@ -28,4 +28,11 @@ class SatTV
   def view_balance
     puts "Current balance is #{customer.balance} Rs."
   end
+
+  def recharge_amount
+    puts 'Enter the amount to recharge:'
+    amount = gets
+    customer.balance += amount.to_i
+    puts "Recharge completed successfully. Current balance is #{customer.balance}"
+  end
 end

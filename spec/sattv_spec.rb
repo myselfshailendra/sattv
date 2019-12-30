@@ -31,4 +31,13 @@ describe SatTV do
       it { expect(STDOUT).to receive(:puts).with('Current balance is 500 Rs.') }
     end
   end
+
+  describe '#recharge_amount' do
+    it 'shows recharged amount' do
+      expect(sattv).to receive(:gets).and_return(500)
+      expect(sattv).to receive(:puts).with('Enter the amount to recharge:')
+      expect(sattv).to receive(:puts).with('Recharge completed successfully. Current balance is 600')
+      sattv.recharge_amount
+    end
+  end
 end
