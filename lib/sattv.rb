@@ -20,6 +20,19 @@ class SatTV
               { channel: 'Nat Geo', price: 20 }].freeze
   SERVICES = [{ service: 'LearnEnglish Service', price: 200 },
               { service: 'LearnCooking Service', price: 100 }].freeze
+  PACKAGES = ['View available packs, channels and services',
+              'Available packs for subscription',
+              'Silver pack: Zee, Sony, Star Plus: 50 Rs.',
+              'Gold Pack: Zee, Sony, Star Plus, Discovery, NatGeo: 100 Rs.',
+              'Available channels for subscription',
+              'Zee: 10 Rs.',
+              'Sony: 15 Rs.',
+              'Star Plus: 20 Rs.',
+              'Discovery: 10 Rs.',
+              'NatGeo: 20 Rs.',
+              'Available services for subscription',
+              'LearnEnglish Service: 200 Rs.',
+              'LearnCooking Service: 100 Rs.'].freeze
 
   def initialize
     @customer = Customer.new
@@ -34,5 +47,9 @@ class SatTV
     amount = gets
     customer.balance += amount.to_i
     puts "Recharge completed successfully. Current balance is #{customer.balance}"
+  end
+
+  def view_packages
+    puts PACKAGES.join("\n")
   end
 end

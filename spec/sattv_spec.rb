@@ -1,6 +1,6 @@
 require 'sattv'
 
-describe SatTV do
+RSpec.describe SatTV, type: :model do
   let(:sattv) { SatTV.new }
 
   describe '#new' do
@@ -39,5 +39,11 @@ describe SatTV do
       expect(sattv).to receive(:puts).with('Recharge completed successfully. Current balance is 600')
       sattv.recharge_amount
     end
+  end
+
+  describe '#view_packages' do
+    after { sattv.view_packages }
+
+    it { expect(STDOUT).to receive(:puts).with(SatTV::PACKAGES.join("\n")) }
   end
 end
