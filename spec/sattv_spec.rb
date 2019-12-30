@@ -1,8 +1,9 @@
 require 'sattv'
 
 describe SatTV do
+  let(:sattv) { SatTV.new }
+
   describe '#new' do
-    let(:sattv) { SatTV.new }
     let(:customer) { sattv.customer }
     it { expect(sattv).to be_a(SatTV) }
     it { expect(customer).to be_a(Customer) }
@@ -12,5 +13,22 @@ describe SatTV do
     it { expect(customer.balance).to eq(100) }
     it { expect(customer.channels).to be_empty }
     it { expect(customer.services).to be_empty }
+  end
+
+  describe '#view_balance' do
+    context 'when customer is new' do
+      after { sattv.view_balance }
+
+      it { expect(STDOUT).to receive(:puts).with('Current balance is 100 Rs.') }
+    end
+
+    context 'when customer recharged amoount' do
+      after do
+        sattv.customer.balance = 500
+        sattv.view_balance
+      end
+
+      it { expect(STDOUT).to receive(:puts).with('Current balance is 500 Rs.') }
+    end
   end
 end

@@ -24,4 +24,8 @@ class SatTV
   def initialize
     @customer = Customer.new
   end
+
+  def view_balance
+    puts "Current balance is #{customer.balance} Rs."
+  end
 end
