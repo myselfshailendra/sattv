@@ -134,4 +134,49 @@ RSpec.describe SatTV, type: :model do
       end
     end
   end
+
+  describe '#subscribe_channel' do
+    context 'when correct input' do
+      it 'add channels Discovery and Nat Geo' do
+        expect(sattv).to receive(:gets).and_return('Discovery, Nat Geo')
+        expect(sattv).to receive(:puts).with('Add channels to existing subscription')
+        expect(sattv).to receive(:puts).with('Enter channel names to add (separated by commas):')
+        expect(sattv).to receive(:puts).with('Channels added successfully.')
+        expect(sattv).to receive(:puts).with('Account balance: 70 Rs.')
+        sattv.subscribe_channel
+      end
+    end
+
+    context 'when correct input but with already existing channel' do
+      before { sattv.customer.channels << ['Discovery'] }
+      it 'shows message to already subscribed' do
+        expect(sattv).to receive(:gets).and_return('Discovery, Nat Geo')
+        expect(sattv).to receive(:puts).with('Add channels to existing subscription')
+        expect(sattv).to receive(:puts).with('Enter channel names to add (separated by commas):')
+        expect(sattv).to receive(:puts).with('Already Subscribed for - Discovery')
+        sattv.subscribe_channel
+      end
+    end
+
+    context 'when correct input but with low balance' do
+      before { sattv.customer.balance = 10 }
+      it 'shows message to insufficient balance' do
+        expect(sattv).to receive(:gets).and_return('Discovery, Nat Geo')
+        expect(sattv).to receive(:puts).with('Add channels to existing subscription')
+        expect(sattv).to receive(:puts).with('Enter channel names to add (separated by commas):')
+        expect(sattv).to receive(:puts).with('Insufficient balance. Please recharge!')
+        sattv.subscribe_channel
+      end
+    end
+
+    context 'when correct input but with wrong channel' do
+      it 'shows message wrong channel name' do
+        expect(sattv).to receive(:gets).and_return('Discovere, Nat Geo')
+        expect(sattv).to receive(:puts).with('Add channels to existing subscription')
+        expect(sattv).to receive(:puts).with('Enter channel names to add (separated by commas):')
+        expect(sattv).to receive(:puts).with('Wrong channel name!')
+        sattv.subscribe_channel
+      end
+    end
+  end
 end

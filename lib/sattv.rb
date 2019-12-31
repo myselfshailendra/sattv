@@ -67,6 +67,21 @@ class SatTV
     send_notifications
   end
 
+  def subscribe_channel
+    puts 'Add channels to existing subscription'
+    puts 'Enter channel names to add (separated by commas):'
+    channels = gets.split(',').map(&:strip)
+    return if incorrect_channels?(channels)
+    return if already_subscribed_channels?(channels)
+
+    total_amount = get_channels_amount(channels)
+    return if not_enough_money?(total_amount)
+
+    update_customer_channels(total_amount)
+    puts 'Channels added successfully.'
+    puts "Account balance: #{customer.balance} Rs."
+  end
+
   private
 
   def fetch_subscription_details
@@ -128,5 +143,29 @@ class SatTV
   def send_notifications
     puts 'Email notification sent successfully'
     puts 'SMS notification sent successfully'
+  end
+
+  def incorrect_channels?(channels)
+    return false if (channels - CHANNELS.map { |ch| ch[:channel] }).empty?
+
+    puts 'Wrong channel name!'
+    true
+  end
+
+  def already_subscribed_channels?(_channels)
+    subscribed_channels = customer.channels - CHANNELS.map { |ch| ch[:channel] }
+    return false if subscribed_channels.empty?
+
+    puts "Already Subscribed for - #{subscribed_channels.join(', ')}"
+    true
+  end
+
+  def get_channels_amount(channels)
+    customer.channels << channels
+    CHANNELS.inject(0) { |sum, hash| channels.include?(hash[:channel]) ? sum += hash[:price] : sum }
+  end
+
+  def update_customer_channels(total_amount)
+    customer.balance -= total_amount
   end
 end
