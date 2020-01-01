@@ -224,4 +224,29 @@ RSpec.describe SatTV, type: :model do
       end
     end
   end
+
+  describe '#view_subscription' do
+    context 'when not subscribed' do
+      it 'shows subscription details' do
+        expect(sattv).to receive(:puts).with('View current subscription details')
+        expect(sattv).to receive(:puts).with('Currently subscribed packs and channels: ')
+        expect(sattv).to receive(:puts).with('Currently subscribed services: ')
+        sattv.view_subscription
+      end
+    end
+
+    context 'when subscribed' do
+      before do
+        sattv.customer.base_pack = 'Gold'
+        sattv.customer.channels.push('Discovery').push('Nat Geo')
+        sattv.customer.services.push('LearnEnglish')
+      end
+      it 'shows subscription details' do
+        expect(sattv).to receive(:puts).with('View current subscription details')
+        expect(sattv).to receive(:puts).with('Currently subscribed packs and channels: Gold + Discovery + Nat Geo')
+        expect(sattv).to receive(:puts).with('Currently subscribed services: LearnEnglish')
+        sattv.view_subscription
+      end
+    end
+  end
 end

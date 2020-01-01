@@ -97,6 +97,12 @@ class SatTV
     puts "Account balance: #{customer.balance} Rs."
   end
 
+  def view_subscription
+    puts 'View current subscription details'
+    puts "Currently subscribed packs and channels: #{([customer.base_pack] + customer.channels).join(' + ')}"
+    puts "Currently subscribed services: #{customer.services.join(' + ')}"
+  end
+
   private
 
   def fetch_subscription_details
