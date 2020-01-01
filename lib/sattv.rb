@@ -72,12 +72,12 @@ class SatTV
     puts 'Enter channel names to add (separated by commas):'
     channels = gets.split(',').map(&:strip)
     return if incorrect_channels?(channels)
-    return if already_subscribed_channels?(channels)
+    return if already_subscribed_channels?
 
     total_amount = get_channels_amount(channels)
     return if not_enough_money?(total_amount)
 
-    update_customer_channels(total_amount)
+    update_customer_channels(channels, total_amount)
     puts 'Channels added successfully.'
     puts "Account balance: #{customer.balance} Rs."
   end
@@ -152,7 +152,7 @@ class SatTV
     true
   end
 
-  def already_subscribed_channels?(_channels)
+  def already_subscribed_channels?
     subscribed_channels = customer.channels - CHANNELS.map { |ch| ch[:channel] }
     return false if subscribed_channels.empty?
 
@@ -161,11 +161,11 @@ class SatTV
   end
 
   def get_channels_amount(channels)
-    customer.channels << channels
     CHANNELS.inject(0) { |sum, hash| channels.include?(hash[:channel]) ? sum += hash[:price] : sum }
   end
 
-  def update_customer_channels(total_amount)
+  def update_customer_channels(channels, total_amount)
+    customer.channels << channels
     customer.balance -= total_amount
   end
 end
