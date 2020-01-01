@@ -80,6 +80,7 @@ class SatTV
     update_customer_channels(channels, total_amount)
     puts 'Channels added successfully.'
     puts "Account balance: #{customer.balance} Rs."
+    send_notifications
   end
 
   def subscribe_service
@@ -95,6 +96,7 @@ class SatTV
     update_customer_service(service, total_amount)
     puts 'Service subscribed successfully'
     puts "Account balance: #{customer.balance} Rs."
+    send_notifications
   end
 
   def view_subscription
@@ -174,8 +176,8 @@ class SatTV
   end
 
   def send_notifications
-    puts 'Email notification sent successfully'
-    puts 'SMS notification sent successfully'
+    puts 'Email notification sent successfully' if customer.email
+    puts 'SMS notification sent successfully' if customer.phone
   end
 
   def incorrect_channels?(channels)
@@ -186,7 +188,7 @@ class SatTV
   end
 
   def already_subscribed_channels?
-    subscribed_channels = customer.channels - CHANNELS.map { |ch| ch[:channel] }
+    subscribed_channels = CHANNELS.inject([]) { |arr, ch| customer.channels.include?(ch[:channel]) ? arr << ch[:channel] : arr }
     return false if subscribed_channels.empty?
 
     puts "Already Subscribed for - #{subscribed_channels.join(', ')}"
@@ -198,7 +200,7 @@ class SatTV
   end
 
   def update_customer_channels(channels, total_amount)
-    customer.channels << channels
+    customer.channels += channels
     customer.balance -= total_amount
   end
 

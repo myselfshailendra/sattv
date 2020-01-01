@@ -38,6 +38,7 @@ RSpec.describe SatTV, type: :model do
       expect(sattv).to receive(:puts).with('Enter the amount to recharge:')
       expect(sattv).to receive(:puts).with('Recharge completed successfully. Current balance is 600')
       sattv.recharge_amount
+      expect(sattv.customer.balance).to eq(600)
     end
   end
 
@@ -64,9 +65,10 @@ RSpec.describe SatTV, type: :model do
         expect(sattv).to receive(:puts).with('Discount applied: 30 Rs.')
         expect(sattv).to receive(:puts).with('Final Price after discount: 270 Rs.')
         expect(sattv).to receive(:puts).with('Account balance: 330 Rs.')
-        expect(sattv).to receive(:puts).with('Email notification sent successfully')
-        expect(sattv).to receive(:puts).with('SMS notification sent successfully')
         sattv.subscribe_base
+        expect(sattv.customer.balance).to eq(330)
+        expect(sattv.customer.base_pack).to eq('Gold')
+        expect(sattv.customer.base_duration).to eq('3')
       end
     end
 
@@ -86,9 +88,39 @@ RSpec.describe SatTV, type: :model do
         expect(sattv).to receive(:puts).with('Discount applied: 0 Rs.')
         expect(sattv).to receive(:puts).with('Final Price after discount: 200 Rs.')
         expect(sattv).to receive(:puts).with('Account balance: 400 Rs.')
+        sattv.subscribe_base
+        expect(sattv.customer.balance).to eq(400)
+        expect(sattv.customer.base_pack).to eq('Gold')
+        expect(sattv.customer.base_duration).to eq('2')
+      end
+    end
+
+    context 'when correct input and already have email and phone' do
+      before do
+        sattv.customer.balance = 600
+        sattv.customer.email = 'john@mailinator.com'
+        sattv.customer.phone = '7042252398'
+      end
+
+      it 'recharge gold base pack with discount and sends notifications' do
+        expect(sattv).to receive(:gets).and_return('G')
+        expect(sattv).to receive(:gets).and_return('3')
+        expect(sattv).to receive(:puts).with('Subscribe to channel packs')
+        expect(sattv).to receive(:puts).with('Enter the Pack you wish to subscribe: (Silver: ‘S’, Gold: ‘G’):')
+        expect(sattv).to receive(:puts).with('Enter the months:')
+        expect(sattv).to receive(:puts).with('You have successfully subscribed the following packs - Gold')
+        expect(sattv).to receive(:puts).with('Monthly price: 100 Rs.')
+        expect(sattv).to receive(:puts).with('No of months: 3')
+        expect(sattv).to receive(:puts).with('Subscription Amount: 300 Rs.')
+        expect(sattv).to receive(:puts).with('Discount applied: 30 Rs.')
+        expect(sattv).to receive(:puts).with('Final Price after discount: 270 Rs.')
+        expect(sattv).to receive(:puts).with('Account balance: 330 Rs.')
         expect(sattv).to receive(:puts).with('Email notification sent successfully')
         expect(sattv).to receive(:puts).with('SMS notification sent successfully')
         sattv.subscribe_base
+        expect(sattv.customer.balance).to eq(330)
+        expect(sattv.customer.base_pack).to eq('Gold')
+        expect(sattv.customer.base_duration).to eq('3')
       end
     end
 
@@ -105,6 +137,9 @@ RSpec.describe SatTV, type: :model do
         expect(sattv).to receive(:puts).with('Enter the months:')
         expect(sattv).to receive(:puts).with('Already Subscribed for - Gold')
         sattv.subscribe_base
+        expect(sattv.customer.balance).to eq(100)
+        expect(sattv.customer.base_pack).to eq('Gold')
+        expect(sattv.customer.base_duration).to eq(nil)
       end
     end
 
@@ -119,6 +154,9 @@ RSpec.describe SatTV, type: :model do
         expect(sattv).to receive(:puts).with('Enter the months:')
         expect(sattv).to receive(:puts).with('Insufficient balance. Please recharge!')
         sattv.subscribe_base
+        expect(sattv.customer.balance).to eq(200)
+        expect(sattv.customer.base_pack).to eq(nil)
+        expect(sattv.customer.base_duration).to eq(nil)
       end
     end
 
@@ -131,6 +169,9 @@ RSpec.describe SatTV, type: :model do
         expect(sattv).to receive(:puts).with('Enter the months:')
         expect(sattv).to receive(:puts).with('Wrong Input!')
         sattv.subscribe_base
+        expect(sattv.customer.balance).to eq(100)
+        expect(sattv.customer.base_pack).to eq(nil)
+        expect(sattv.customer.base_duration).to eq(nil)
       end
     end
   end
@@ -144,17 +185,40 @@ RSpec.describe SatTV, type: :model do
         expect(sattv).to receive(:puts).with('Channels added successfully.')
         expect(sattv).to receive(:puts).with('Account balance: 70 Rs.')
         sattv.subscribe_channel
+        expect(sattv.customer.balance).to eq(70)
+        expect(sattv.customer.channels).to eq(['Discovery', 'Nat Geo'])
+      end
+    end
+
+    context 'when correct input and already have email and phone' do
+      before do
+        sattv.customer.email = 'john@mailinator.com'
+        sattv.customer.phone = '7042252398'
+      end
+      it 'add channels Discovery and Nat Geo and send notifications' do
+        expect(sattv).to receive(:gets).and_return('Discovery, Nat Geo')
+        expect(sattv).to receive(:puts).with('Add channels to existing subscription')
+        expect(sattv).to receive(:puts).with('Enter channel names to add (separated by commas):')
+        expect(sattv).to receive(:puts).with('Channels added successfully.')
+        expect(sattv).to receive(:puts).with('Account balance: 70 Rs.')
+        expect(sattv).to receive(:puts).with('Email notification sent successfully')
+        expect(sattv).to receive(:puts).with('SMS notification sent successfully')
+        sattv.subscribe_channel
+        expect(sattv.customer.balance).to eq(70)
+        expect(sattv.customer.channels).to eq(['Discovery', 'Nat Geo'])
       end
     end
 
     context 'when correct input but with already existing channel' do
-      before { sattv.customer.channels << ['Discovery'] }
+      before { sattv.customer.channels.push('Discovery') }
       it 'shows message to already subscribed' do
         expect(sattv).to receive(:gets).and_return('Discovery, Nat Geo')
         expect(sattv).to receive(:puts).with('Add channels to existing subscription')
         expect(sattv).to receive(:puts).with('Enter channel names to add (separated by commas):')
         expect(sattv).to receive(:puts).with('Already Subscribed for - Discovery')
         sattv.subscribe_channel
+        expect(sattv.customer.balance).to eq(100)
+        expect(sattv.customer.channels).to eq(['Discovery'])
       end
     end
 
@@ -166,6 +230,8 @@ RSpec.describe SatTV, type: :model do
         expect(sattv).to receive(:puts).with('Enter channel names to add (separated by commas):')
         expect(sattv).to receive(:puts).with('Insufficient balance. Please recharge!')
         sattv.subscribe_channel
+        expect(sattv.customer.balance).to eq(10)
+        expect(sattv.customer.channels).to be_empty
       end
     end
 
@@ -176,6 +242,8 @@ RSpec.describe SatTV, type: :model do
         expect(sattv).to receive(:puts).with('Enter channel names to add (separated by commas):')
         expect(sattv).to receive(:puts).with('Wrong channel name!')
         sattv.subscribe_channel
+        expect(sattv.customer.balance).to eq(100)
+        expect(sattv.customer.channels).to be_empty
       end
     end
   end
@@ -190,6 +258,29 @@ RSpec.describe SatTV, type: :model do
         expect(sattv).to receive(:puts).with('Service subscribed successfully')
         expect(sattv).to receive(:puts).with('Account balance: 200 Rs.')
         sattv.subscribe_service
+        expect(sattv.customer.balance).to eq(200)
+        expect(sattv.customer.services).to eq(['LearnEnglish'])
+      end
+    end
+
+    context 'when correct input and already have email and phone' do
+      before do
+        sattv.customer.balance = 400
+        sattv.customer.email = 'john@mailinator.com'
+        sattv.customer.phone = '7042252398'
+      end
+
+      it 'add service LearnEnglish and sends notifications' do
+        expect(sattv).to receive(:gets).and_return('LearnEnglish')
+        expect(sattv).to receive(:puts).with('Subscribe to special services')
+        expect(sattv).to receive(:puts).with('Enter the service name:')
+        expect(sattv).to receive(:puts).with('Service subscribed successfully')
+        expect(sattv).to receive(:puts).with('Account balance: 200 Rs.')
+        expect(sattv).to receive(:puts).with('Email notification sent successfully')
+        expect(sattv).to receive(:puts).with('SMS notification sent successfully')
+        sattv.subscribe_service
+        expect(sattv.customer.balance).to eq(200)
+        expect(sattv.customer.services).to eq(['LearnEnglish'])
       end
     end
 
@@ -201,6 +292,8 @@ RSpec.describe SatTV, type: :model do
         expect(sattv).to receive(:puts).with('Enter the service name:')
         expect(sattv).to receive(:puts).with('Already Subscribed for - LearnEnglish')
         sattv.subscribe_service
+        expect(sattv.customer.balance).to eq(100)
+        expect(sattv.customer.services).to eq(['LearnEnglish'])
       end
     end
 
@@ -211,6 +304,8 @@ RSpec.describe SatTV, type: :model do
         expect(sattv).to receive(:puts).with('Enter the service name:')
         expect(sattv).to receive(:puts).with('Insufficient balance. Please recharge!')
         sattv.subscribe_service
+        expect(sattv.customer.balance).to eq(100)
+        expect(sattv.customer.services).to be_empty
       end
     end
 
@@ -221,6 +316,8 @@ RSpec.describe SatTV, type: :model do
         expect(sattv).to receive(:puts).with('Enter the service name:')
         expect(sattv).to receive(:puts).with('Wrong service name!')
         sattv.subscribe_service
+        expect(sattv.customer.balance).to eq(100)
+        expect(sattv.customer.services).to be_empty
       end
     end
   end
@@ -274,6 +371,8 @@ RSpec.describe SatTV, type: :model do
         expect(sattv).to receive(:puts).with('Enter phone: ')
         expect(sattv).to receive(:puts).with('Wrong Email!')
         sattv.update_profile
+        expect(sattv.customer.email).to eq(nil)
+        expect(sattv.customer.phone).to eq(nil)
       end
     end
 
@@ -286,6 +385,8 @@ RSpec.describe SatTV, type: :model do
         expect(sattv).to receive(:puts).with('Enter phone: ')
         expect(sattv).to receive(:puts).with('Wrong Phone!')
         sattv.update_profile
+        expect(sattv.customer.email).to eq(nil)
+        expect(sattv.customer.phone).to eq(nil)
       end
     end
   end
