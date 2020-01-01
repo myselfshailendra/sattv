@@ -179,4 +179,49 @@ RSpec.describe SatTV, type: :model do
       end
     end
   end
+
+  describe '#subscribe_service' do
+    context 'when correct input' do
+      before { sattv.customer.balance = 400 }
+      it 'add service LearnEnglish' do
+        expect(sattv).to receive(:gets).and_return('LearnEnglish')
+        expect(sattv).to receive(:puts).with('Subscribe to special services')
+        expect(sattv).to receive(:puts).with('Enter the service name:')
+        expect(sattv).to receive(:puts).with('Service subscribed successfully')
+        expect(sattv).to receive(:puts).with('Account balance: 200 Rs.')
+        sattv.subscribe_service
+      end
+    end
+
+    context 'when correct input but with already existing service' do
+      before { sattv.customer.services << 'LearnEnglish' }
+      it 'shows message to already subscribed' do
+        expect(sattv).to receive(:gets).and_return('LearnEnglish')
+        expect(sattv).to receive(:puts).with('Subscribe to special services')
+        expect(sattv).to receive(:puts).with('Enter the service name:')
+        expect(sattv).to receive(:puts).with('Already Subscribed for - LearnEnglish')
+        sattv.subscribe_service
+      end
+    end
+
+    context 'when correct input but with low balance' do
+      it 'shows message to insufficient balance' do
+        expect(sattv).to receive(:gets).and_return('LearnEnglish')
+        expect(sattv).to receive(:puts).with('Subscribe to special services')
+        expect(sattv).to receive(:puts).with('Enter the service name:')
+        expect(sattv).to receive(:puts).with('Insufficient balance. Please recharge!')
+        sattv.subscribe_service
+      end
+    end
+
+    context 'when correct input but with wrong service' do
+      it 'shows message wrong service name' do
+        expect(sattv).to receive(:gets).and_return('Learn English')
+        expect(sattv).to receive(:puts).with('Subscribe to special services')
+        expect(sattv).to receive(:puts).with('Enter the service name:')
+        expect(sattv).to receive(:puts).with('Wrong service name!')
+        sattv.subscribe_service
+      end
+    end
+  end
 end

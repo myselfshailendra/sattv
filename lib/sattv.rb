@@ -18,8 +18,8 @@ class SatTV
               { channel: 'Star Plus', price: 20 },
               { channel: 'Discovery', price: 10 },
               { channel: 'Nat Geo', price: 20 }].freeze
-  SERVICES = [{ service: 'LearnEnglish Service', price: 200 },
-              { service: 'LearnCooking Service', price: 100 }].freeze
+  SERVICES = [{ service: 'LearnEnglish', price: 200 },
+              { service: 'LearnCooking', price: 100 }].freeze
   PACKAGES = ['View available packs, channels and services',
               'Available packs for subscription',
               'Silver pack: Zee, Sony, Star Plus: 50 Rs.',
@@ -79,6 +79,21 @@ class SatTV
 
     update_customer_channels(channels, total_amount)
     puts 'Channels added successfully.'
+    puts "Account balance: #{customer.balance} Rs."
+  end
+
+  def subscribe_service
+    puts 'Subscribe to special services'
+    puts 'Enter the service name:'
+    service = gets
+    return if incorrect_service?(service)
+    return if already_subscribed_service?(service)
+
+    total_amount = get_service_amount(service)
+    return if not_enough_money?(total_amount)
+
+    update_customer_service(service, total_amount)
+    puts 'Service subscribed successfully'
     puts "Account balance: #{customer.balance} Rs."
   end
 
@@ -166,6 +181,29 @@ class SatTV
 
   def update_customer_channels(channels, total_amount)
     customer.channels << channels
+    customer.balance -= total_amount
+  end
+
+  def incorrect_service?(service)
+    return false if SERVICES.map { |s| s[:service] }.include?(service)
+
+    puts 'Wrong service name!'
+    true
+  end
+
+  def already_subscribed_service?(service)
+    return false unless customer.services.include?(service)
+
+    puts "Already Subscribed for - #{service}"
+    true
+  end
+
+  def get_service_amount(service)
+    SERVICES.inject(0) { |amount, s| s[:service].eql?(service) ? amount = s[:price] : amount }
+  end
+
+  def update_customer_service(service, total_amount)
+    customer.services << service
     customer.balance -= total_amount
   end
 end
