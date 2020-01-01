@@ -103,6 +103,18 @@ class SatTV
     puts "Currently subscribed services: #{customer.services.join(' + ')}"
   end
 
+  def update_profile
+    puts 'Update email and phone number for notifications'
+    puts 'Enter the email: '
+    email = gets
+    puts 'Enter phone: '
+    phone = gets
+    return if invalid_email_and_phone?(email, phone)
+
+    update_customer_profile(email, phone)
+    puts 'Email and Phone updated successfully'
+  end
+
   private
 
   def fetch_subscription_details
@@ -211,5 +223,22 @@ class SatTV
   def update_customer_service(service, total_amount)
     customer.services << service
     customer.balance -= total_amount
+  end
+
+  def invalid_email_and_phone?(email, phone)
+    if email.match(/\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i)
+      unless phone.match(/\A\d{10}\z/)
+        puts 'Wrong Phone!'
+        true
+      end
+    else
+      puts 'Wrong Email!'
+      true
+    end
+  end
+
+  def update_customer_profile(email, phone)
+    customer.email = email
+    customer.phone = phone
   end
 end

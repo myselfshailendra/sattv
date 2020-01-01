@@ -249,4 +249,44 @@ RSpec.describe SatTV, type: :model do
       end
     end
   end
+
+  describe '#update_profile' do
+    context 'when correct input' do
+      it 'update customer' do
+        expect(sattv).to receive(:gets).and_return('john@mailinator.com')
+        expect(sattv).to receive(:gets).and_return('7042252398')
+        expect(sattv).to receive(:puts).with('Update email and phone number for notifications')
+        expect(sattv).to receive(:puts).with('Enter the email: ')
+        expect(sattv).to receive(:puts).with('Enter phone: ')
+        expect(sattv).to receive(:puts).with('Email and Phone updated successfully')
+        sattv.update_profile
+        expect(sattv.customer.email).to eq('john@mailinator.com')
+        expect(sattv.customer.phone).to eq('7042252398')
+      end
+    end
+
+    context 'when wrong email' do
+      it 'shows wrong email message' do
+        expect(sattv).to receive(:gets).and_return('john@mailin ator.com')
+        expect(sattv).to receive(:gets).and_return('7042252398')
+        expect(sattv).to receive(:puts).with('Update email and phone number for notifications')
+        expect(sattv).to receive(:puts).with('Enter the email: ')
+        expect(sattv).to receive(:puts).with('Enter phone: ')
+        expect(sattv).to receive(:puts).with('Wrong Email!')
+        sattv.update_profile
+      end
+    end
+
+    context 'when wrong phone' do
+      it 'shows wrong phone message' do
+        expect(sattv).to receive(:gets).and_return('john@mailinator.com')
+        expect(sattv).to receive(:gets).and_return('704225298')
+        expect(sattv).to receive(:puts).with('Update email and phone number for notifications')
+        expect(sattv).to receive(:puts).with('Enter the email: ')
+        expect(sattv).to receive(:puts).with('Enter phone: ')
+        expect(sattv).to receive(:puts).with('Wrong Phone!')
+        sattv.update_profile
+      end
+    end
+  end
 end
