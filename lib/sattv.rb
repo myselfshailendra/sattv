@@ -1,4 +1,4 @@
-require 'customer'
+require_relative 'customer'
 
 class SatTV
   attr_accessor :customer
@@ -43,7 +43,7 @@ class SatTV
   end
 
   def recharge_amount
-    puts 'Enter the amount to recharge:'
+    print 'Enter the amount to recharge:'
     amount = gets
     customer.balance += amount.to_i
     puts "Recharge completed successfully. Current balance is #{customer.balance}"
@@ -69,10 +69,10 @@ class SatTV
 
   def subscribe_channel
     puts 'Add channels to existing subscription'
-    puts 'Enter channel names to add (separated by commas):'
-    channels = gets.split(',').map(&:strip)
+    print 'Enter channel names to add (separated by commas):'
+    channels = gets.chomp.split(',').map(&:strip)
     return if incorrect_channels?(channels)
-    return if already_subscribed_channels?
+    return if already_subscribed_channels?(channels)
 
     total_amount = get_channels_amount(channels)
     return if not_enough_money?(total_amount)
@@ -85,8 +85,8 @@ class SatTV
 
   def subscribe_service
     puts 'Subscribe to special services'
-    puts 'Enter the service name:'
-    service = gets
+    print 'Enter the service name:'
+    service = gets.chomp
     return if incorrect_service?(service)
     return if already_subscribed_service?(service)
 
@@ -107,10 +107,10 @@ class SatTV
 
   def update_profile
     puts 'Update email and phone number for notifications'
-    puts 'Enter the email: '
-    email = gets
-    puts 'Enter phone: '
-    phone = gets
+    print 'Enter the email: '
+    email = gets.chomp
+    print 'Enter phone: '
+    phone = gets.chomp
     return if invalid_email_and_phone?(email, phone)
 
     update_customer_profile(email, phone)
@@ -121,10 +121,10 @@ class SatTV
 
   def fetch_subscription_details
     puts 'Subscribe to channel packs'
-    puts 'Enter the Pack you wish to subscribe: (Silver: ‘S’, Gold: ‘G’):'
-    pack = gets
-    puts 'Enter the months:'
-    months = gets
+    print 'Enter the Pack you wish to subscribe: (Silver: ‘S’, Gold: ‘G’):'
+    pack = gets.chomp
+    print 'Enter the months:'
+    months = gets.chomp
     [pack, months]
   end
 
@@ -187,8 +187,8 @@ class SatTV
     true
   end
 
-  def already_subscribed_channels?
-    subscribed_channels = CHANNELS.inject([]) { |arr, ch| customer.channels.include?(ch[:channel]) ? arr << ch[:channel] : arr }
+  def already_subscribed_channels?(channels)
+    subscribed_channels = channels.inject([]) { |arr, channel| customer.channels.include?(channel) ? arr << channel : arr }
     return false if subscribed_channels.empty?
 
     puts "Already Subscribed for - #{subscribed_channels.join(', ')}"
